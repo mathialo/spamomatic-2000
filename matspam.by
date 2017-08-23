@@ -207,4 +207,4 @@ def send_mail(to) {
 }
 
 
-send_mail("mathias@lohne.nu");
+send_mail("whatever@domain.suffix");
