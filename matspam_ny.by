@@ -1,0 +1,220 @@
+# -*- coding: utf-8 -*-
+import lxml.html;
+import urllib;
+from bs4 import BeautifulSoup;
+
+import smtplib;
+from email.mime.multipart import MIMEMultipart;
+from email.mime.text import MIMEText;
+
+import random
+import datetime
+
+num_errors = 0;
+
+
+def errorprint(text, explanation=None) {	
+	print("\x1b[31m[!]\x1b[0m  Error: %s" % text);
+
+	if (explanation) {
+		print("     %s" % explanation);
+	}
+}
+
+
+def infoprint(text) {
+	print("\x1b[32m[i]\x1b[0m  %s" % text);
+}
+
+
+def logerror(text, explanation=None) {
+	# Wrapping errorprint, so that one can easily rederict this to a file if
+	# we want to
+	errorprint(text, explanation);
+}
+
+
+def log(text) {
+	infoprint(text)
+}
+
+
+class MessageConstructor {
+	def __init__(self, mode="other") {
+		self.mode = mode;
+	}
+
+	def _generate_std_options(self) {
+		return u"""
+			<p>Det er flere muligheter for mat, du kan for eksempel:<p>
+			<ul>
+				<li>Spise overpriset mat fra Frederikke</li>
+				<li>Møte opp litt tidligere og kjøpe taco på Tacoteket eller nudler på Ramen Ya (disse stenger 17)</li>
+				<li>Være skikkelig student og ta med onsdagens rester og varme det i en av mikroene på Frederikke</li>
+			</ul>
+		""";
+	}
+
+	def _generate_greeting(self) {
+		options = [
+			u"Hei og hopp alle BBere!",
+			u"Heisann alle biørner og binner!",
+			u"Hej alle i hopa!",
+			u"Helluu!"
+		];
+
+		followup = "";
+
+		if (self.mode == "rehersal") {
+			options_followup = [
+				u"Før kveldens prøvelse er det behov for litt mat.",
+				u"Det kommer ikke vakre toner fra sultne musikere."
+			];
+
+			followup += random.choice(options_followup);
+
+		} elif (self.mode == "quiz") {
+			options_followup = [
+				u"Før vi knuser quizen på RF kan det være behov for mat.",
+				u"Uten mat og drikke, duger quizheltene ikke.",
+				u"RF har greit drikkeutvalg, men nokså skralt matutvalg."
+			];
+
+			followup += random.choice(options_followup);
+
+		} else {
+			followup += u"Før dagens festligheter kan det være behov for litt mat.";
+		}
+
+		followup += u" Vi pleier å møtes på Frederikke i 17tida, på gymsaldelen av bygget, rett ovenfor tacoteket.";
+
+		return u"<p>%s</p><p>%s</p>" % (random.choice(options), followup);
+	}
+
+	def _fetch_todays_menu(self) {	
+		log("Fetching menu...");
+
+		try {
+			url = "https://www.sio.no/mat-og-drikke/spisesteder-og-kaffebarer";
+			document = BeautifulSoup(urllib.urlopen(url).read(), "lxml");
+			frikkediv = document.find(
+				"div", dict([("id", "jump122")])
+			);
+			dinnerlist = frikkediv.find(
+				"ul", dict([("class", "dinner")])
+			);
+
+			return u"<p>Dagens meny på Frederikke består av:</p>" + unicode(str(dinnerlist), "utf-8");
+
+		} except Exception as e {	
+			logerror("Could not fetch today's menu from SiO, omitting menu from email", str(e));
+
+			global num_errors;
+			num_errors += 1;
+
+			return "";
+		}
+	}
+
+	def _generate_goodbye(self) {
+		options = [
+			u"Biørneblæs spammer generelt alt for lite!",
+			u"Snakkes i kveld!",
+			u"Hilsen Biørneblæs studentorchester og spammeri.",
+			u"MVH,<br>Spamomatic 2000."
+		];
+
+		return u"<p>%s</p>" % random.choice(options);
+	}
+
+	def generate_message_text(self) {
+		menu = self._fetch_todays_menu()
+		log("Constructing email...");
+		return self._generate_greeting() + self._generate_std_options() + menu + self._generate_goodbye();
+	}
+}
+
+
+def read_settings() {
+	infile = open("mail.properties", "r");
+
+	user = "";
+	pass = "";
+
+	for line in infile {
+		words = line.split("=")
+
+		if (words[0] == "user") {
+			user = words[1];
+
+		} elif (words[0] == "password") {
+			user = words[1];
+		}
+	}
+
+	return user, pass;
+}
+
+
+def send_mail(to) {
+	# Print timestamp for logging
+	print(datetime.datetime.today())
+
+	global num_errors;
+
+	# Reading settings file
+	user, pass = read_settings();
+
+	# Create message container
+	msg = MIMEMultipart('alternative');
+	msg['Subject'] = "Dagens middag";
+	msg['From'] = "Spamomatic 2000 <noreply@grava.uio.no>";
+	msg['To'] = to;
+
+	# Create the body of the message
+	schedule = [
+		"other",
+		"other",
+		"other",
+		"rehersal",
+		"quiz",
+		"other",
+		"other"
+	];
+	mode = schedule[datetime.datetime.today().weekday()];
+	log("Mode detected: %s" % mode);
+	message_constructor = MessageConstructor(mode);
+	html = message_constructor.generate_message_text();
+
+	# Attach body to message container
+	part2 = MIMEText(html, 'html', "utf-8");
+	msg.attach(part2);
+
+	# Send the email
+	log("Sending email...");
+	try {	
+		s = smtplib.SMTP("smtp.uio.no", 587);
+		s.ehlo();
+		s.starttls();
+		s.login(user, pass);
+		s.sendmail("noreply@grava.uio.no", to, msg.as_string());
+		s.quit();
+
+	} except Exception as e {	
+		# Something went wrong, probably no proper internet connection
+		logerror("Could not send email!", str(e));
+
+		num_errors += 1;
+	}
+
+	# Print end status
+	if (num_errors > 0) {
+		log("Finished with %d errors!" % num_errors);
+
+	} else {
+		log("Done!");
+	}
+}
+
+
+send_mail("mathias@lohne.nu");
