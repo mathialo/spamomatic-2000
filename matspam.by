@@ -136,6 +136,13 @@ def read_settings() {
 		}
 	}
 
+	if (user == "") {
+		raise Exception("No username found");
+	}
+	if (password == "") {
+		raise Exception("No password found");
+	}
+
 	return user, password;
 }
 
@@ -230,13 +237,13 @@ try {
 	sendto = sendtofile.readline().strip();
 
 } except IOError {
-	logerror("No destination email found, please provide one in the file sendto");
+	logerror("No destination email found, the file sendto was created", "Please write the destination email here.");
 	outfile = open("sendto", "w");
 	outfile.write("whatever@domain.suffix\n");
 	sys.exit(1);
 
-} except {
-	logerror("No destination email found, please provide one in the file sendto");
+} except Exception as e {
+	logerror("Error while reading sendto", str(e));
 	sys.exit(1);
 }
 
