@@ -7,8 +7,9 @@ import smtplib;
 from email.mime.multipart import MIMEMultipart;
 from email.mime.text import MIMEText;
 
-import random
-import datetime
+import random;
+import datetime;
+import sys;
 
 num_errors = 0;
 
@@ -159,6 +160,7 @@ def send_mail(to) {
 
 	} except Exception as e {
 		logerror("Could not read settings file", str(e));
+		return;
 	}
 
 
@@ -223,5 +225,19 @@ def send_mail(to) {
 	}
 }
 
+try {
+	sendtofile = open("sendto", "r");
+	sendto = sendtofile.readline().strip();
 
-send_mail("whatever@domain.suffix");
+} except IOError {
+	logerror("No destination email found, please provide one in the file sendto");
+	outfile = open("sendto", "w");
+	outfile.write("whatever@domain.suffix\n");
+	sys.exit(1);
+
+} except {
+	logerror("No destination email found, please provide one in the file sendto");
+	sys.exit(1);
+}
+
+send_mail(sendto);
