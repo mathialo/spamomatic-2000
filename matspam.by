@@ -149,6 +149,7 @@ def send_mail(to) {
 	log("Reading email settings from file...")
 	user, password = read_settings();
 
+
 	# Create message container
 	msg = MIMEMultipart('alternative');
 	msg['Subject'] = "Dagens middag";
@@ -198,11 +199,15 @@ def send_mail(to) {
 	}
 
 	# Print end status
-	if (num_errors > 0) {
-		log("Finished with %d errors!" % num_errors);
+	if (num_errors == 0) {
+		log("Done!");
+
+	} elif (num_errors == 1) {
+		log("Finished with 1 error!");
 
 	} else {
-		log("Done!");
+		log("Finished with %d errors!" % num_errors);
+
 	}
 }
 
