@@ -147,7 +147,19 @@ def send_mail(to) {
 
 	# Reading settings file
 	log("Reading email settings from file...")
-	user, password = read_settings();
+	try {
+		user, password = read_settings();
+		
+	} except IOError as e {
+		outfile = open("mail.properties", "w");
+		outfile.write("user=\npassword=\n");
+		outfile.close();
+		logerror("No settings file found. Created blank file.", "Please fill out mail.properties with login info");
+		return;
+
+	} except Exception as e {
+		logerror("Could not read settings file", str(e));
+	}
 
 
 	# Create message container
