@@ -154,9 +154,6 @@ def read_settings() {
 
 
 def send_mail(to) {
-	# Print timestamp for logging
-	print(datetime.datetime.today())
-
 	global num_errors;
 
 	# Reading settings file
@@ -237,6 +234,10 @@ def send_mail(to) {
 
 	}
 }
+
+
+# Print timestamp for logging
+print(datetime.datetime.today())
 
 try {
 	sendtofile = safe_open("sendto", "r");
