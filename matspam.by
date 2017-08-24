@@ -15,7 +15,7 @@ import os;
 num_errors = 0;
 
 
-def safe_open(filename, mode) {
+def safe_open(filename, mode="r") {
 	return open("%s/%s" % ( os.path.dirname(os.path.realpath(__file__)), filename ), mode);
 }
 
