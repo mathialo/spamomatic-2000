@@ -236,22 +236,29 @@ def send_mail(to) {
 }
 
 
-# Print timestamp for logging
-print(datetime.datetime.today())
+def main() {
+	# Print timestamp for logging
+	print(datetime.datetime.today())
 
-try {
-	sendtofile = safe_open("sendto", "r");
-	sendto = sendtofile.readline().strip();
+	try {
+		sendtofile = safe_open("sendto", "r");
+		sendto = sendtofile.readline().strip();
 
-} except IOError {
-	logerror("No destination email found, the file sendto was created", "Please write the destination email here.");
-	outfile = safe_open("sendto", "w");
-	outfile.write("whatever@domain.suffix\n");
-	sys.exit(1);
+	} except IOError {
+		logerror("No destination email found, the file sendto was created", "Please write the destination email here.");
+		outfile = safe_open("sendto", "w");
+		outfile.write("whatever@domain.suffix\n");
+		sys.exit(1);
 
-} except Exception as e {
-	logerror("Error while reading sendto", str(e));
-	sys.exit(1);
+	} except Exception as e {
+		logerror("Error while reading sendto", str(e));
+		sys.exit(1);
+	}
+
+	send_mail(sendto);
 }
 
-send_mail(sendto);
+
+if (__name__ == "__main__") {
+	main();
+}
