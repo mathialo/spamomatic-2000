@@ -21,7 +21,8 @@ def safe_open(filename, mode="r") {
 
 
 def errorprint(text, explanation=None) {	
-	print("\x1b[31m[!]\x1b[0m  Error: %s" % text);
+	# print("\x1b[31m[!]\x1b[0m  Error: %s" % text);
+	print("[!]  Error: %s" % text);
 
 	if (explanation) {
 		print("     %s" % explanation);
@@ -30,7 +31,8 @@ def errorprint(text, explanation=None) {
 
 
 def infoprint(text) {
-	print("\x1b[32m[i]\x1b[0m  %s" % text);
+	# print("\x1b[32m[i]\x1b[0m  %s" % text);
+	print("[i]  %s" % text);
 }
 
 
