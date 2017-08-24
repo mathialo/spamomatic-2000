@@ -10,8 +10,14 @@ from email.mime.text import MIMEText;
 import random;
 import datetime;
 import sys;
+import os;
 
 num_errors = 0;
+
+
+def safe_open(filename, mode) {
+	return open("%s/%s" % ( os.path.dirname(os.path.realpath(__file__)), filename ), mode);
+}
 
 
 def errorprint(text, explanation=None) {	
@@ -46,7 +52,7 @@ class MessageConstructor {
 	}
 
 	def _generate_std_options(self) {
-		infile = open("templates/stdtext.html", "r");
+		infile = safe_open("templates/stdtext.html", "r");
 
 		text = "";
 
@@ -62,7 +68,7 @@ class MessageConstructor {
 	}
 
 	def _parse_options(self, filename) {
-		infile = open("templates/%s" % filename);
+		infile = safe_open("templates/%s" % filename);
 		options = [];
 
 		for line in infile {
@@ -120,7 +126,7 @@ class MessageConstructor {
 
 
 def read_settings() {
-	infile = open("mail.properties", "r");
+	infile = safe_open("mail.properties", "r");
 
 	user = "";
 	password = "";
@@ -159,7 +165,7 @@ def send_mail(to) {
 		user, password = read_settings();
 		
 	} except IOError as e {
-		outfile = open("mail.properties", "w");
+		outfile = safe_open("mail.properties", "w");
 		outfile.write("user=\npassword=\n");
 		outfile.close();
 		logerror("No settings file found. Created blank file.", "Please fill out mail.properties with login info");
@@ -233,12 +239,12 @@ def send_mail(to) {
 }
 
 try {
-	sendtofile = open("sendto", "r");
+	sendtofile = safe_open("sendto", "r");
 	sendto = sendtofile.readline().strip();
 
 } except IOError {
 	logerror("No destination email found, the file sendto was created", "Please write the destination email here.");
-	outfile = open("sendto", "w");
+	outfile = safe_open("sendto", "w");
 	outfile.write("whatever@domain.suffix\n");
 	sys.exit(1);
 
