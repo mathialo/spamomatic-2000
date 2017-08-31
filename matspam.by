@@ -77,6 +77,11 @@ class MessageConstructor {
 			options.append(unicode(str(line.strip()), "utf-8"));
 		}
 
+		# Make sure list is not empty
+		if (options == []) {
+			options = [""];
+		}
+
 		return options;
 	}
 
