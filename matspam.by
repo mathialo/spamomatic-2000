@@ -96,7 +96,7 @@ class MessageConstructor {
 	}
 
 	def _generate_greeting(self) {
-		greetings = self._parse_options("gretings");
+		greetings = self._parse_options("greetings");
 		info = self._parse_options(self.mode);
 		followup = self._parse_options("followup");
 
@@ -319,5 +319,5 @@ def main2() {
 
 
 if (__name__ == "__main__") {
-	main();
+	main2();
 }
