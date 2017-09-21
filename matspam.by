@@ -11,6 +11,7 @@ import random;
 import datetime;
 import sys;
 import os;
+import re;
 
 num_errors = 0;
 
@@ -93,6 +94,39 @@ class MessageConstructor {
 		return "<p>%s</p><p>%s %s</p>" % ( random.choice(greetings), random.choice(info), random.choice(followup) );
 	}
 
+	def _generate_allergens(self) {
+		options = self._parse_options("allergener");
+
+		random.shuffle(options);
+		thistime = options[0:random.randint(1, 3)];
+
+		res = thistime[0];
+
+		for word in thistime[1:-1] {
+			res += ", %s" % word;
+		}
+
+		if (len(thistime) > 1) {
+			res += " og %s" % thistime[-1];
+		}
+
+		return res;
+	}
+
+	def _fix_allergens(self, text) {
+		replaced = True;
+
+		while replaced {
+			text_new = re.sub(u"se merking på buffeten", self._generate_allergens(), text, 1);
+			
+			replaced = not (text_new == text);
+
+			text = text_new;
+		}
+
+		return text;
+	}
+
 	def _fetch_todays_menu(self) {	
 		log("Fetching menu...");
 
@@ -106,7 +140,10 @@ class MessageConstructor {
 				"ul", dict([("class", "dinner")])
 			);
 
-			return u"<p>Dagens meny på Frederikke består av:</p>" + unicode(str(dinnerlist), "utf-8");
+			dinnerlist = self._fix_allergens(unicode(str(dinnerlist), "utf-8"));
+			dinnerlist = re.sub(" class=\"dinner\"", "", dinnerlist)
+
+			return u"<p>Dagens meny på Frederikke består av:</p>" + dinnerlist;
 
 		} except Exception as e {	
 			logerror("Could not fetch today's menu from SiO, omitting menu from email", str(e));
@@ -263,6 +300,11 @@ def main() {
 	}
 
 	send_mail(sendto);
+}
+
+def main2() {
+	gen = MessageConstructor();
+	print(gen._fetch_todays_menu());
 }
 
 
