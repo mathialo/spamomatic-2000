@@ -17,7 +17,16 @@ num_errors = 0;
 
 
 def safe_open(filename, mode="r") {
-	return open("%s/%s" % ( os.path.dirname(os.path.realpath(__file__)), filename ), mode);
+	try {
+		return open("%s/%s" % ( os.path.dirname(os.path.realpath(__file__)), filename ), mode);
+
+	} except IOError {
+		log("Could find file \"%s\", initialized empty file." % filename)
+		outfile = open("%s/%s" % ( os.path.dirname(os.path.realpath(__file__)), filename ), "w");
+		outfile.close();
+
+		return open("%s/%s" % ( os.path.dirname(os.path.realpath(__file__)), filename ), mode);
+	}
 }
 
 
@@ -87,7 +96,7 @@ class MessageConstructor {
 	}
 
 	def _generate_greeting(self) {
-		greetings = self._parse_options("greetings");
+		greetings = self._parse_options("gretings");
 		info = self._parse_options(self.mode);
 		followup = self._parse_options("followup");
 
@@ -292,6 +301,7 @@ def main() {
 		logerror("No destination email found, the file sendto was created", "Please write the destination email here.");
 		outfile = safe_open("sendto", "w");
 		outfile.write("whatever@domain.suffix\n");
+		outfile.close();
 		sys.exit(1);
 
 	} except Exception as e {
