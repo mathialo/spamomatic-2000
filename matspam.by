@@ -145,14 +145,19 @@ class MessageConstructor {
 			frikkediv = document.find(
 				"div", dict([("id", "jump122")])
 			);
-			dinnerlist = frikkediv.find(
+			dinnerlists = frikkediv.findAll(
 				"ul", dict([("class", "dinner")])
 			);
 
-			dinnerlist = self._fix_allergens(unicode(str(dinnerlist), "utf-8"));
-			dinnerlist = re.sub(" class=\"dinner\"", "", dinnerlist)
+			normaldinner = dinnerlists[0]
+			normaldinner = self._fix_allergens(unicode(str(normaldinner), "utf-8"));
+			normaldinner = re.sub(" class=\"dinner\"", "", normaldinner)
 
-			return u"<p>Dagens meny på Frederikke består av:</p>" + dinnerlist;
+			vegetariandinner = dinnerlists[1]
+			vegetariandinner = self._fix_allergens(unicode(str(vegetariandinner), "utf-8"));
+			vegetariandinner = re.sub(" class=\"dinner\"", "", vegetariandinner)
+
+			return u"<p>Dagens meny på Frederikke består av:</p>" + normaldinner + u"<p>Vegetarttilbud:</p>" + vegetariandinner;
 
 		} except Exception as e {	
 			logerror("Could not fetch today's menu from SiO, omitting menu from email", str(e));
