@@ -165,7 +165,7 @@ class MessageConstructor {
 			global num_errors;
 			num_errors += 1;
 
-			return "";
+			return u"<p>Jeg greide ikke å hente menyen på Frikke i dag, sorry!</p>";
 		}
 	}
 
