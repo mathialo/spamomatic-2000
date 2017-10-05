@@ -12,6 +12,7 @@ import datetime;
 import sys;
 import os;
 import re;
+import numpy as np;
 
 num_errors = 0;
 
@@ -107,7 +108,8 @@ class MessageConstructor {
 		options = self._parse_options("allergener");
 
 		random.shuffle(options);
-		thistime = options[0:random.randint(1, 3)];
+		num_allergens = int(np.ceil(np.random.exponential(1.5))+1)
+		thistime = options[0:num_allergens];
 
 		res = thistime[0];
 
