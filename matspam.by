@@ -108,7 +108,7 @@ class MessageConstructor {
 		options = self._parse_options("allergener");
 
 		random.shuffle(options);
-		num_allergens = int(np.ceil(np.random.exponential(1.5))+1)
+		num_allergens = int(np.ceil(np.random.exponential(1.2))+1.5)
 		thistime = options[0:num_allergens];
 
 		res = thistime[0];
