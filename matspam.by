@@ -108,7 +108,7 @@ class MessageConstructor {
 		options = self._parse_options("allergener");
 
 		random.shuffle(options);
-		num_allergens = int(np.ceil(np.random.exponential(1.2))+1.5)
+		num_allergens = int(np.ceil(np.random.exponential(1.3))+1.5)
 		thistime = options[0:num_allergens];
 
 		res = thistime[0];
@@ -153,11 +153,15 @@ class MessageConstructor {
 
 			normaldinner = dinnerlists[0]
 			normaldinner = self._fix_allergens(unicode(str(normaldinner), "utf-8"));
-			normaldinner = re.sub(" class=\"dinner\"", "", normaldinner)
+			normaldinner = re.sub(" class=\"dinner\"", "", normaldinner)          # Remove html class
+			normaldinner = re.sub(r"[\w\s\-]+[Tt]hursday:\s+", "", normaldinner)  # Remove day prefix
+			normaldinner = re.sub(r"Dagens pasta:\s+", "", normaldinner)          # Remove pasta prefix
 
 			vegetariandinner = dinnerlists[1]
 			vegetariandinner = self._fix_allergens(unicode(str(vegetariandinner), "utf-8"));
-			vegetariandinner = re.sub(" class=\"dinner\"", "", vegetariandinner)
+			vegetariandinner = re.sub(" class=\"dinner\"", "", vegetariandinner)          # Remove html class
+			vegetariandinner = re.sub(r"[\w\s\-]+[Tt]hursday:\s+", "", vegetariandinner)  # Remove day prefix
+			vegetariandinner = re.sub(r"Dagens pasta:\s+", "", vegetariandinner)          # Remove pasta prefix
 
 			return u"<p>Dagens meny på Frederikke består av:</p>" + normaldinner + u"<p>Vegetarttilbud:</p>" + vegetariandinner;
 
